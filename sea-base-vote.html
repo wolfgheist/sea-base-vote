@@ -265,11 +265,12 @@
   .color-card.rank-3 .color-rank-badge { opacity: 1; background: var(--star1); color: var(--navy); }
 
   /* Section 3 */
-  .layout-grid {
+.layout-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
-  }
+    align-items: start;
+}
   @media (max-width: 500px) { .layout-grid { grid-template-columns: 1fr; } }
   .layout-card {
     background: var(--white);
