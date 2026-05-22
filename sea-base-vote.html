@@ -707,8 +707,11 @@ function refreshLogoUI() {
       badge.textContent = RANK_STARS[r];
       placementRow.querySelectorAll('.placement-btn').forEach(b => b.disabled = false);
     } else {
-      delete logoPlacements[logo.id];
-      placementRow.querySelectorAll('.placement-btn').forEach(b => { b.disabled = true; b.classList.remove('selected'); });
+      logoPlacements[logo.id] = [];
+      placementRow.querySelectorAll('.placement-btn').forEach(b => {
+        b.disabled = true;
+        b.classList.remove('selected');
+      });
     }
   });
 }
