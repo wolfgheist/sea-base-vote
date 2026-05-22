@@ -681,11 +681,15 @@ function toggleLogoRank(id) {
 }
 
 function selectPlacement(id, p, btn) {
-  logoPlacements[id] = p;
-  const row = document.getElementById('placement-' + id);
-  row.querySelectorAll('.placement-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-}
+  if (!logoPlacements[id]) logoPlacements[id] = [];
+  const idx = logoPlacements[id].indexOf(p);
+  if (idx > -1) {
+    logoPlacements[id].splice(idx, 1);
+    btn.classList.remove('selected');
+  } else {
+    logoPlacements[id].push(p);
+    btn.classList.add('selected');
+  }
 
 const RANK_STARS = { 1: '★★★ 1st', 2: '★★ 2nd', 3: '★ 3rd' };
 const RANK_CLASS = { 1: 'rank-1', 2: 'rank-2', 3: 'rank-3' };
@@ -790,7 +794,7 @@ function submitVote() {
   if (Object.keys(logoRanks).length < 3) { showError('Please rank 3 logos in Section 1.'); return; }
   
   // Check placements
-  const missingPlacement = Object.keys(logoRanks).find(id => !logoPlacements[id]);
+  const missingPlacement = Object.keys(logoRanks).find(id => !logoPlacements[id] || logoPlacements[id].length === 0);
   if (missingPlacement) {
     const logo = LOGOS.find(l => l.id === missingPlacement);
     showError('Please choose a placement (Small Front / Large Front / Large Back) for ' + logo.name + '.');
@@ -815,11 +819,11 @@ function submitVote() {
     timestamp: new Date().toISOString(),
     name: name,
     logo_1st: logoRanked[1] || '',
-    logo_1st_placement: logoPlacements[Object.keys(logoRanks).find(k => logoRanks[k]===1)] || '',
+    logo_1st_placement: (logoPlacements[Object.keys(logoRanks).find(k => logoRanks[k]===1)] || []).join(', '),
     logo_2nd: logoRanked[2] || '',
-    logo_2nd_placement: logoPlacements[Object.keys(logoRanks).find(k => logoRanks[k]===2)] || '',
+    logo_2nd_placement: (logoPlacements[Object.keys(logoRanks).find(k => logoRanks[k]===2)] || []).join(', '),
     logo_3rd: logoRanked[3] || '',
-    logo_3rd_placement: logoPlacements[Object.keys(logoRanks).find(k => logoRanks[k]===3)] || '',
+    logo_3rd_placement: (logoPlacements[Object.keys(logoRanks).find(k => logoRanks[k]===3)] || []).join(', '),
     color_1st: colorRanked[1] || '',
     color_2nd: colorRanked[2] || '',
     color_3rd: colorRanked[3] || '',
