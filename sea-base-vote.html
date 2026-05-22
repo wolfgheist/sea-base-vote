@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sea Base High Adventure — Vote</title>
+<style>
+  :root {
+    --navy: #0a2342;
+    --ocean: #1a6b8a;
+    --wave: #2ec4e8;
+    --sand: #f5e6c8;
+    --gold: #e8a020;
+    --white: #ffffff;
+    --light: #f0f8ff;
+    --border: #c8dde8;
+    --text: #1a2a3a;
+    --muted: #5a7a8a;
+    --success: #1a8a5a;
+    --error: #c0392b;
+    --star3: #e8a020;
+    --star2: #7ab3c8;
+    --star1: #a8c8a0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Georgia', serif;
+    background: var(--navy);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  .page-header {
+    background: linear-gradient(180deg, #061629 0%, var(--navy) 100%);
+    color: var(--white);
+    text-align: center;
+    padding: 2.5rem 1rem 2rem;
+    border-bottom: 3px solid var(--gold);
+  }
+  .page-header .scout-badge {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .page-header h1 {
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    font-weight: normal;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .page-header p {
+    color: #aac8d8;
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+    font-style: italic;
+  }
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+  }
+
+  /* Voter ID */
+  .voter-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 2px solid var(--gold);
+  }
+  .voter-card h2 {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ocean);
+    margin-bottom: 1rem;
+  }
+  .voter-card input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--text);
+  }
+  .voter-card input:focus { outline: none; border-color: var(--ocean); }
+
+  /* Section headers */
+  .section-label {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 0.5rem;
+  }
+  .section-title {
+    color: var(--white);
+    font-size: clamp(1.1rem, 3vw, 1.4rem);
+    margin-bottom: 0.3rem;
+  }
+  .section-desc {
+    color: #aac8d8;
+    font-size: 0.9rem;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+  }
+  .section-block { margin-bottom: 3rem; }
+
+  /* Rank legend */
+  .rank-legend {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+  }
+  .rank-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: #aac8d8;
+  }
+  .rank-badge .stars { letter-spacing: -1px; }
+
+  /* Logo grid */
+  .logo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  .logo-card {
+    background: var(--white);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: border-color 0.2s, transform 0.1s;
+    cursor: pointer;
+    position: relative;
+  }
+  .logo-card:hover { transform: translateY(-2px); border-color: var(--wave); }
+  .logo-card.rank-1 { border-color: var(--star3); box-shadow: 0 0 0 3px rgba(232,160,32,0.25); }
+  .logo-card.rank-2 { border-color: var(--star2); box-shadow: 0 0 0 3px rgba(122,179,200,0.25); }
+  .logo-card.rank-3 { border-color: var(--star1); box-shadow: 0 0 0 3px rgba(168,200,160,0.25); }
+  .logo-img-wrap {
+    background: #f0f4f8;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .logo-img-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; padding: 8px; }
+  .logo-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #c8dde8, #a0c0d8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--ocean);
+    font-weight: bold;
+  }
+  .logo-info {
+    padding: 0.75rem;
+  }
+  .logo-name {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+  .rank-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--navy);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 0.75rem;
+    color: var(--white);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .logo-card.rank-1 .rank-indicator { opacity: 1; background: var(--star3); color: var(--navy); content: '★★★ 1st'; }
+  .logo-card.rank-2 .rank-indicator { opacity: 1; background: var(--star2); color: var(--navy); }
+  .logo-card.rank-3 .rank-indicator { opacity: 1; background: var(--star1); color: var(--navy); }
+
+  /* Placement options for logos */
+  .placement-row {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .placement-btn {
+    flex: 1;
+    min-width: 60px;
+    padding: 4px 6px;
+    font-size: 0.72rem;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    background: #f5f8fa;
+    color: var(--muted);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    font-family: inherit;
+    line-height: 1.3;
+  }
+  .placement-btn:hover { border-color: var(--ocean); color: var(--ocean); }
+  .placement-btn.selected { background: var(--ocean); border-color: var(--ocean); color: var(--white); }
+  .placement-btn:disabled { opacity: 0.4; cursor: default; }
+
+  /* Color grid */
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 0.75rem;
+  }
+  .color-card {
+    background: var(--white);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.1s;
+    position: relative;
+  }
+  .color-card:hover { transform: translateY(-2px); border-color: var(--wave); }
+  .color-card.rank-1 { border-color: var(--star3); box-shadow: 0 0 0 3px rgba(232,160,32,0.25); }
+  .color-card.rank-2 { border-color: var(--star2); box-shadow: 0 0 0 3px rgba(122,179,200,0.25); }
+  .color-card.rank-3 { border-color: var(--star1); box-shadow: 0 0 0 3px rgba(168,200,160,0.25); }
+  .color-swatch { height: 70px; width: 100%; }
+  .color-card-label {
+    padding: 8px 6px 10px;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: var(--text);
+  }
+  .color-rank-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .color-card.rank-1 .color-rank-badge { opacity: 1; background: var(--star3); color: var(--navy); }
+  .color-card.rank-2 .color-rank-badge { opacity: 1; background: var(--star2); color: var(--navy); }
+  .color-card.rank-3 .color-rank-badge { opacity: 1; background: var(--star1); color: var(--navy); }
+
+  /* Section 3 */
+  .layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 500px) { .layout-grid { grid-template-columns: 1fr; } }
+  .layout-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 1.25rem;
+    border: 2.5px solid transparent;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .layout-card:hover { border-color: var(--wave); }
+  .layout-card.selected { border-color: var(--gold); background: #fffbf0; }
+  .layout-card .layout-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+  .layout-card .layout-name { font-size: 0.95rem; font-weight: bold; color: var(--text); }
+  .layout-card .layout-desc { font-size: 0.8rem; color: var(--muted); margin-top: 0.3rem; }
+  .layout-card .check {
+    display: none;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 1rem;
+    font-weight: bold;
+    align-items: center;
+    justify-content: center;
+    margin: 0.75rem auto 0;
+  }
+  .layout-card.selected .check { display: flex; }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    height: 6px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .progress-fill {
+    background: var(--gold);
+    height: 100%;
+    border-radius: 20px;
+    transition: width 0.4s ease;
+  }
+
+  /* Submit */
+  .submit-wrap { text-align: center; margin-top: 2rem; }
+  .submit-btn {
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    border-radius: 30px;
+    padding: 1rem 3rem;
+    font-size: 1.1rem;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .submit-btn:hover { background: #f0b040; transform: translateY(-2px); }
+  .submit-btn:active { transform: translateY(0); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Status messages */
+  .status-msg {
+    margin-top: 1rem;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    text-align: center;
+    display: none;
+  }
+  .status-msg.error { background: #fdecea; border: 1px solid #e57373; color: var(--error); display: block; }
+  .status-msg.success { background: #e8f5e9; border: 1px solid #66bb6a; color: var(--success); display: block; }
+  .status-msg.sending { background: #e3f2fd; border: 1px solid #64b5f6; color: #1565c0; display: block; }
+
+  /* Thank you screen */
+  .thankyou { display: none; text-align: center; padding: 3rem 1rem; color: var(--white); }
+  .thankyou.show { display: block; }
+  .thankyou h2 { font-size: 2rem; color: var(--gold); margin-bottom: 1rem; }
+  .thankyou p { color: #aac8d8; max-width: 480px; margin: 0 auto; line-height: 1.7; }
+  .thankyou .anchor { font-size: 3rem; margin-bottom: 1rem; }
+  .form-wrap.hidden { display: none; }
+
+  /* Instruction callout */
+  .callout {
+    background: rgba(46,196,232,0.12);
+    border-left: 4px solid var(--wave);
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    color: #aac8d8;
+    font-size: 0.88rem;
+    font-style: italic;
+  }
+  .callout strong { color: var(--wave); font-style: normal; }
+
+  /* Setup notice */
+  .setup-notice {
+    background: rgba(232,160,32,0.15);
+    border: 2px dashed var(--gold);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+    color: var(--sand);
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+  .setup-notice strong { color: var(--gold); }
+  .setup-notice code {
+    background: rgba(0,0,0,0.3);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: var(--wave);
+  }
+
+  hr.section-divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    margin: 2.5rem 0;
+  }
+
+  @media (max-width: 600px) {
+    .logo-grid { grid-template-columns: repeat(2, 1fr); }
+    .color-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="scout-badge">⚓</div>
+  <h1>Sea Base High Adventure</h1>
+  <p>Troop Design Vote &mdash; Cast your ballot below</p>
+</div>
+
+<div class="container">
+
+  <div class="progress-wrap">
+    <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+  </div>
+
+  <div class="form-wrap" id="formWrap">
+
+    <!-- VOTER ID -->
+    <div class="voter-card">
+      <h2>🪪 Your Name</h2>
+      <input type="text" id="voterName" placeholder="First and Last Name (e.g. John Smith)" autocomplete="name" />
+    </div>
+
+    <!-- ===================== SECTION 1: LOGOS ===================== -->
+    <div class="section-block">
+      <div class="section-label">Section 1</div>
+      <h2 class="section-title">Logo Vote</h2>
+      <p class="section-desc">Choose your top 3 favorite logos — then pick a placement for each one.</p>
+
+      <div class="callout">
+        <strong>How to vote:</strong> Click a logo to rank it. Your first click = ★★★ (1st choice), second = ★★ (2nd), third = ★ (3rd).
+        Click a ranked logo again to remove your vote. Then choose a shirt placement for each ranked logo.
+      </div>
+
+      <div class="rank-legend">
+        <div class="rank-badge"><span class="stars" style="color:var(--star3)">★★★</span> 1st choice (3 pts)</div>
+        <div class="rank-badge"><span class="stars" style="color:var(--star2)">★★</span> 2nd choice (2 pts)</div>
+        <div class="rank-badge"><span class="stars" style="color:var(--star1)">★</span> 3rd choice (1 pt)</div>
+      </div>
+
+      <div class="logo-grid" id="logoGrid">
+        <!-- Logos injected by JS -->
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ===================== SECTION 2: COLORS ===================== -->
+    <div class="section-block">
+      <div class="section-label">Section 2</div>
+      <h2 class="section-title">T-Shirt Color Vote</h2>
+      <p class="section-desc">Choose your top 3 favorite shirt colors. Same ranking system as above.</p>
+
+      <div class="callout">
+        <strong>How to vote:</strong> Click a color to rank it. 1st click = ★★★, 2nd = ★★, 3rd = ★. Click again to deselect.
+      </div>
+
+      <div class="color-grid" id="colorGrid">
+        <!-- Colors injected by JS -->
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ===================== SECTION 3: LAYOUT ===================== -->
+    <div class="section-block">
+      <div class="section-label">Section 3</div>
+      <h2 class="section-title">T-Shirt Layout Preference</h2>
+      <p class="section-desc">How should the logo be placed on the shirt?</p>
+
+      <div class="layout-grid" id="layoutGrid">
+        <div class="layout-card" onclick="selectLayout(this, 'Large logo on front')" data-layout="Large logo on front">
+          <div class="layout-icon">👕</div>
+          <div class="layout-name">Large Logo — Front</div>
+          <div class="layout-desc">One big logo centered on the front of the shirt</div>
+          <div class="check">✓</div>
+        </div>
+        <div class="layout-card" onclick="selectLayout(this, 'Small logo front + Large logo back')" data-layout="Small logo front + Large logo back">
+          <div class="layout-icon">🔄</div>
+          <div class="layout-name">Small Front + Large Back</div>
+          <div class="layout-desc">Small logo on front chest, large logo across the back</div>
+          <div class="check">✓</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <div class="submit-wrap">
+      <button class="submit-btn" id="submitBtn" onclick="submitVote()">Cast My Vote ⚓</button>
+      <div class="status-msg" id="statusMsg"></div>
+    </div>
+
+  </div><!-- end form-wrap -->
+
+  <!-- THANK YOU SCREEN -->
+  <div class="thankyou" id="thankYou">
+    <div class="anchor">⚓</div>
+    <h2>Vote Received!</h2>
+    <p>Thanks for voting! Your choices have been recorded. <br>Fair winds and following seas, Scouts!</p>
+  </div>
+
+</div><!-- end container -->
+
+<script>
+// ============================================================
+// CONFIGURATION — edit these arrays to customize your options
+// ============================================================
+
+const LOGOS = [
+  { id: 'logo1',  name: 'Logo 1',  img: '' },
+  { id: 'logo2',  name: 'Logo 2',  img: '' },
+  { id: 'logo3',  name: 'Logo 3',  img: '' },
+  { id: 'logo4',  name: 'Logo 4',  img: '' },
+  { id: 'logo5',  name: 'Logo 5',  img: '' },
+  { id: 'logo6',  name: 'Logo 6',  img: '' },
+  { id: 'logo7',  name: 'Logo 7',  img: '' },
+  { id: 'logo8',  name: 'Logo 8',  img: '' },
+  { id: 'logo9',  name: 'Logo 9',  img: '' },
+  { id: 'logo10', name: 'Logo 10', img: '' },
+  { id: 'logo11', name: 'Logo 11', img: '' },
+  { id: 'logo12', name: 'Logo 12', img: '' },
+];
+
+const SHIRT_COLORS = [
+  { id: 'royal_blue',   name: 'Royal Blue',   hex: '#2a5fc4' },
+  { id: 'navy',         name: 'Navy',          hex: '#1a2a50' },
+  { id: 'forest_green', name: 'Forest Green',  hex: '#2d6a30' },
+  { id: 'cardinal_red', name: 'Cardinal Red',  hex: '#9e1b2c' },
+  { id: 'black',        name: 'Black',         hex: '#1a1a1a' },
+  { id: 'gray',         name: 'Sport Gray',    hex: '#9a9a9a' },
+  { id: 'white',        name: 'White',         hex: '#f5f5f5', border: '#c0c0c0' },
+];
+
+const PLACEMENTS = ['Small Front', 'Large Front', 'Large Back'];
+
+// ============================================================
+// GOOGLE SHEETS ENDPOINT — replace with your Apps Script URL
+// ============================================================
+const SHEET_URL = 'YOUR_GOOGLE_SCRIPT_URL_HERE';
+
+// ============================================================
+// STATE
+// ============================================================
+let logoRanks = {};       // { logo_id: rank (1,2,3) }
+let logoPlacements = {};  // { logo_id: 'Small Front' | 'Large Front' | 'Large Back' }
+let colorRanks = {};      // { color_id: rank (1,2,3) }
+let layoutChoice = '';
+
+// ============================================================
+// BUILD UI
+// ============================================================
+function buildLogoGrid() {
+  const grid = document.getElementById('logoGrid');
+  grid.innerHTML = '';
+  LOGOS.forEach(logo => {
+    const card = document.createElement('div');
+    card.className = 'logo-card';
+    card.id = 'lcard-' + logo.id;
+    card.onclick = () => toggleLogoRank(logo.id);
+
+    const imgWrap = document.createElement('div');
+    imgWrap.className = 'logo-img-wrap';
+    if (logo.img) {
+      const img = document.createElement('img');
+      img.src = logo.img;
+      img.alt = logo.name;
+      imgWrap.appendChild(img);
+    } else {
+      const ph = document.createElement('div');
+      ph.className = 'logo-placeholder';
+      ph.textContent = logo.id.replace('logo','#');
+      imgWrap.appendChild(ph);
+    }
+    card.appendChild(imgWrap);
+
+    const info = document.createElement('div');
+    info.className = 'logo-info';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'logo-name';
+    nameEl.textContent = logo.name;
+    info.appendChild(nameEl);
+
+    const placementRow = document.createElement('div');
+    placementRow.className = 'placement-row';
+    placementRow.id = 'placement-' + logo.id;
+
+    PLACEMENTS.forEach(p => {
+      const btn = document.createElement('button');
+      btn.className = 'placement-btn';
+      btn.textContent = p;
+      btn.disabled = true;
+      btn.onclick = (e) => { e.stopPropagation(); selectPlacement(logo.id, p, btn); };
+      placementRow.appendChild(btn);
+    });
+    info.appendChild(placementRow);
+
+    const rankBadge = document.createElement('div');
+    rankBadge.className = 'rank-indicator';
+    rankBadge.id = 'rankbadge-' + logo.id;
+    card.appendChild(rankBadge);
+
+    card.appendChild(info);
+    grid.appendChild(card);
+  });
+}
+
+function buildColorGrid() {
+  const grid = document.getElementById('colorGrid');
+  grid.innerHTML = '';
+  SHIRT_COLORS.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'color-card';
+    card.id = 'ccard-' + c.id;
+    card.onclick = () => toggleColorRank(c.id);
+
+    const swatch = document.createElement('div');
+    swatch.className = 'color-swatch';
+    swatch.style.background = c.hex;
+    if (c.border) swatch.style.borderBottom = '1px solid ' + c.border;
+    card.appendChild(swatch);
+
+    const label = document.createElement('div');
+    label.className = 'color-card-label';
+    label.textContent = c.name;
+    card.appendChild(label);
+
+    const badge = document.createElement('div');
+    badge.className = 'color-rank-badge';
+    badge.id = 'cbadge-' + c.id;
+    card.appendChild(badge);
+
+    grid.appendChild(card);
+  });
+}
+
+// ============================================================
+// LOGO RANKING LOGIC
+// ============================================================
+function getNextLogoRank() {
+  const used = Object.values(logoRanks);
+  for (let r = 1; r <= 3; r++) {
+    if (!used.includes(r)) return r;
+  }
+  return null;
+}
+
+function toggleLogoRank(id) {
+  if (logoRanks[id]) {
+    // deselect: free up rank, shift others down
+    const removed = logoRanks[id];
+    delete logoRanks[id];
+    delete logoPlacements[id];
+    // shift higher ranks down
+    Object.keys(logoRanks).forEach(k => {
+      if (logoRanks[k] > removed) logoRanks[k]--;
+    });
+  } else {
+    const next = getNextLogoRank();
+    if (next === null) return; // already have 3
+    logoRanks[id] = next;
+  }
+  refreshLogoUI();
+  updateProgress();
+}
+
+function selectPlacement(id, p, btn) {
+  logoPlacements[id] = p;
+  const row = document.getElementById('placement-' + id);
+  row.querySelectorAll('.placement-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+const RANK_STARS = { 1: '★★★ 1st', 2: '★★ 2nd', 3: '★ 3rd' };
+const RANK_CLASS = { 1: 'rank-1', 2: 'rank-2', 3: 'rank-3' };
+
+function refreshLogoUI() {
+  LOGOS.forEach(logo => {
+    const card = document.getElementById('lcard-' + logo.id);
+    const badge = document.getElementById('rankbadge-' + logo.id);
+    const placementRow = document.getElementById('placement-' + logo.id);
+    card.classList.remove('rank-1','rank-2','rank-3');
+    badge.textContent = '';
+    if (logoRanks[logo.id]) {
+      const r = logoRanks[logo.id];
+      card.classList.add(RANK_CLASS[r]);
+      badge.textContent = RANK_STARS[r];
+      placementRow.querySelectorAll('.placement-btn').forEach(b => b.disabled = false);
+    } else {
+      delete logoPlacements[logo.id];
+      placementRow.querySelectorAll('.placement-btn').forEach(b => { b.disabled = true; b.classList.remove('selected'); });
+    }
+  });
+}
+
+// ============================================================
+// COLOR RANKING LOGIC
+// ============================================================
+function getNextColorRank() {
+  const used = Object.values(colorRanks);
+  for (let r = 1; r <= 3; r++) {
+    if (!used.includes(r)) return r;
+  }
+  return null;
+}
+
+function toggleColorRank(id) {
+  if (colorRanks[id]) {
+    const removed = colorRanks[id];
+    delete colorRanks[id];
+    Object.keys(colorRanks).forEach(k => {
+      if (colorRanks[k] > removed) colorRanks[k]--;
+    });
+  } else {
+    const next = getNextColorRank();
+    if (next === null) return;
+    colorRanks[id] = next;
+  }
+  refreshColorUI();
+  updateProgress();
+}
+
+function refreshColorUI() {
+  SHIRT_COLORS.forEach(c => {
+    const card = document.getElementById('ccard-' + c.id);
+    const badge = document.getElementById('cbadge-' + c.id);
+    card.classList.remove('rank-1','rank-2','rank-3');
+    badge.textContent = '';
+    if (colorRanks[c.id]) {
+      const r = colorRanks[c.id];
+      card.classList.add(RANK_CLASS[r]);
+      badge.textContent = r;
+    }
+  });
+}
+
+// ============================================================
+// LAYOUT SELECTION
+// ============================================================
+function selectLayout(el, val) {
+  document.querySelectorAll('.layout-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  layoutChoice = val;
+  updateProgress();
+}
+
+// ============================================================
+// PROGRESS
+// ============================================================
+function updateProgress() {
+  let pts = 0;
+  if (document.getElementById('voterName').value.trim()) pts += 1;
+  pts += Math.min(Object.keys(logoRanks).length, 3);
+  pts += Math.min(Object.keys(colorRanks).length, 3);
+  if (layoutChoice) pts += 1;
+  const pct = Math.round((pts / 8) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+document.getElementById('voterName').addEventListener('input', updateProgress);
+
+// ============================================================
+// SUBMIT
+// ============================================================
+function submitVote() {
+  const name = document.getElementById('voterName').value.trim();
+  const msg = document.getElementById('statusMsg');
+  const btn = document.getElementById('submitBtn');
+
+  msg.className = 'status-msg';
+  msg.textContent = '';
+
+  if (!name) { showError('Please enter your name before submitting.'); return; }
+  if (Object.keys(logoRanks).length < 3) { showError('Please rank 3 logos in Section 1.'); return; }
+  
+  // Check placements
+  const missingPlacement = Object.keys(logoRanks).find(id => !logoPlacements[id]);
+  if (missingPlacement) {
+    const logo = LOGOS.find(l => l.id === missingPlacement);
+    showError('Please choose a placement (Small Front / Large Front / Large Back) for ' + logo.name + '.');
+    return;
+  }
+  if (Object.keys(colorRanks).length < 3) { showError('Please rank 3 shirt colors in Section 2.'); return; }
+  if (!layoutChoice) { showError('Please pick a layout in Section 3.'); return; }
+
+  // Build payload
+  const getRanked = (ranks, items, keyField) => {
+    const result = {};
+    items.forEach(item => {
+      if (ranks[item[keyField]]) result[ranks[item[keyField]]] = item.name;
+    });
+    return result;
+  };
+
+  const logoRanked = getRanked(logoRanks, LOGOS, 'id');
+  const colorRanked = getRanked(colorRanks, SHIRT_COLORS, 'id');
+
+  const payload = {
+    timestamp: new Date().toISOString(),
+    name: name,
+    logo_1st: logoRanked[1] || '',
+    logo_1st_placement: logoPlacements[Object.keys(logoRanks).find(k => logoRanks[k]===1)] || '',
+    logo_2nd: logoRanked[2] || '',
+    logo_2nd_placement: logoPlacements[Object.keys(logoRanks).find(k => logoRanks[k]===2)] || '',
+    logo_3rd: logoRanked[3] || '',
+    logo_3rd_placement: logoPlacements[Object.keys(logoRanks).find(k => logoRanks[k]===3)] || '',
+    color_1st: colorRanked[1] || '',
+    color_2nd: colorRanked[2] || '',
+    color_3rd: colorRanked[3] || '',
+    layout: layoutChoice,
+  };
+
+  btn.disabled = true;
+  msg.className = 'status-msg sending';
+  msg.textContent = 'Sending your vote…';
+
+  if (SHEET_URL === 'https://script.google.com/macros/s/AKfycby_j8kgV3sfQNmItEo6ldn_5SEXFnMmD9GI8TBvxXyLpQXJYzJMhsX9kFNL6DBLFyaTJw/exec') {
+    setTimeout(() => {
+      console.log('DEMO MODE — vote payload:', payload);
+      showThanks();
+    }, 1200);
+    return;
+  }
+
+  fetch(SHEET_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(() => { showThanks(); })
+  .catch(() => {
+    btn.disabled = false;
+    showError('Could not send your vote. Check your connection and try again.');
+  });
+}
+
+function showError(text) {
+  const msg = document.getElementById('statusMsg');
+  msg.className = 'status-msg error';
+  msg.textContent = '⚠️ ' + text;
+  msg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function showThanks() {
+  document.getElementById('formWrap').classList.add('hidden');
+  document.getElementById('thankYou').classList.add('show');
+  document.getElementById('setupNotice').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+buildLogoGrid();
+buildColorGrid();
+</script>
+</body>
+</html>
