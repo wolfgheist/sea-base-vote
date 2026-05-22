@@ -265,13 +265,11 @@
   .color-card.rank-3 .color-rank-badge { opacity: 1; background: var(--star1); color: var(--navy); }
 
   /* Section 3 */
-.layout-grid {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
+  .layout-grid {
+    display: flex;
     gap: 1rem;
-    align-items: start;
-}
-  @media (max-width: 500px) { .layout-grid { grid-template-columns: 1fr; } }
+    align-items: stretch;
+  }
   .layout-card {
     background: var(--white);
     border-radius: 10px;
@@ -280,10 +278,15 @@
     cursor: pointer;
     text-align: center;
     transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
+  .layout-card-single { flex: 1; }
+  .layout-card-double { flex: 2; }
   .layout-card:hover { border-color: var(--wave); }
   .layout-card.selected { border-color: var(--gold); background: #fffbf0; }
-  .layout-card .layout-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+  .layout-card img { width: 100%; height: 420px; object-fit: contain; border-radius: 8px; margin-bottom: 0.75rem; }
   .layout-card .layout-name { font-size: 0.95rem; font-weight: bold; color: var(--text); }
   .layout-card .layout-desc { font-size: 0.8rem; color: var(--muted); margin-top: 0.3rem; }
   .layout-card .check {
@@ -299,6 +302,7 @@
     margin: 0.75rem auto 0;
   }
   .layout-card.selected .check { display: flex; }
+  @media (max-width: 600px) { .layout-grid { flex-direction: column; } }
 
   /* Progress bar */
   .progress-wrap {
@@ -480,14 +484,14 @@
       <p class="section-desc">How should the logo be placed on the shirt?</p>
 
       <div class="layout-grid" id="layoutGrid">
-        <div class="layout-card" onclick="selectLayout(this, 'Large logo on front')" data-layout="Large logo on front">
-          <img src="Layout_Large_Front.jpg" alt="Large logo on front" style="width:100%; height:500px; object-fit:contain; border-radius:8px; display:block; margin-bottom:0.75rem;">
+        <div class="layout-card layout-card-single" onclick="selectLayout(this, 'Large logo on front')" data-layout="Large logo on front">
+          <img src="Layout_Large_Front.jpg" alt="Large logo on front">
           <div class="layout-name">Large Logo — Front</div>
           <div class="layout-desc">One big logo centered on the front of the shirt</div>
           <div class="check">✓</div>
         </div>
-        <div class="layout-card" onclick="selectLayout(this, 'Small logo front + Large logo back')" data-layout="Small logo front + Large logo back">
-          <img src="Layout_Small_Front_Large_Back.jpg" alt="Small front + large back" style="width:100%; height:500px; object-fit:contain; border-radius:8px; display:block; margin-bottom:0.75rem;">
+        <div class="layout-card layout-card-double" onclick="selectLayout(this, 'Small logo front + Large logo back')" data-layout="Small logo front + Large logo back">
+          <img src="Layout_Small_Front_Large_Back.jpg" alt="Small front + large back">
           <div class="layout-name">Small Front + Large Back</div>
           <div class="layout-desc">Small logo on front chest, large logo across the back</div>
           <div class="check">✓</div>
@@ -536,11 +540,11 @@ const LOGOS = [
 const SHIRT_COLORS = [
   { id: 'navy',          name: 'Navy',          img: 'Navy.png' },
   { id: 'royal',         name: 'Royal',         img: 'Royal.png' },
-  { id: 'electric_blue', name: 'Electric Blue', img: 'Electric Blue.png' },
-  { id: 'sky_blue',      name: 'Sky Blue',      img: 'Sky Blue.png' },
-  { id: 'pastel_blue',   name: 'Pastel Blue',   img: 'Pastel Blue.png' },
+  { id: 'electric_blue', name: 'Electric Blue', img: 'Electric_Blue.png' },
+  { id: 'sky_blue',      name: 'Sky Blue',      img: 'Sky_Blue.png' },
+  { id: 'pastel_blue',   name: 'Pastel Blue',   img: 'Pastel_Blue.png' },
   { id: 'teal',          name: 'Teal',          img: 'Teal.png' },
-  { id: 'light_blue',    name: 'Light Blue',    img: 'Light Blue.png' },
+  { id: 'light_blue',    name: 'Light Blue',    img: 'Light_Blue.png' },
 ];
 
 const PLACEMENTS = ['Small Front', 'Large Front', 'Large Back'];
