@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sea Base 2026 — Tiebreaker Vote</title>
+<style>
+  :root {
+    --navy: #0a2342;
+    --ocean: #1a6b8a;
+    --wave: #2ec4e8;
+    --gold: #e8a020;
+    --white: #ffffff;
+    --border: #c8dde8;
+    --text: #1a2a3a;
+    --muted: #5a7a8a;
+    --success: #1a8a5a;
+    --error: #c0392b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Georgia', serif;
+    background: var(--navy);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  .page-header {
+    background: linear-gradient(180deg, #061629 0%, var(--navy) 100%);
+    color: var(--white);
+    text-align: center;
+    padding: 2.5rem 1rem 2rem;
+    border-bottom: 3px solid var(--gold);
+  }
+  .page-header .badge { font-size: 2.5rem; margin-bottom: 0.5rem; }
+  .page-header h1 {
+    font-size: clamp(1.2rem, 3.5vw, 1.8rem);
+    font-weight: normal;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-variant-numeric: lining-nums;
+  }
+  .page-header p { color: #aac8d8; margin-top: 0.5rem; font-size: 0.95rem; font-style: italic; }
+
+  .container { max-width: 760px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+
+  .voter-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 2px solid var(--gold);
+  }
+  .voter-card h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ocean); margin-bottom: 1rem; }
+  .voter-card input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--text);
+  }
+  .voter-card input:focus { outline: none; border-color: var(--ocean); }
+
+  .section-label {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 0.5rem;
+  }
+  .section-title { color: var(--white); font-size: clamp(1rem, 3vw, 1.3rem); margin-bottom: 0.3rem; }
+  .section-desc { color: #aac8d8; font-size: 0.9rem; font-style: italic; margin-bottom: 1.2rem; }
+  .section-block { margin-bottom: 2.5rem; }
+
+  .callout {
+    background: rgba(46,196,232,0.12);
+    border-left: 4px solid var(--wave);
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.2rem;
+    color: #aac8d8;
+    font-size: 0.88rem;
+    font-style: italic;
+  }
+  .callout strong { color: var(--wave); font-style: normal; }
+
+  .tie-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 500px) { .tie-grid { grid-template-columns: 1fr; } }
+
+  .tie-card {
+    background: var(--white);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .tie-card:hover { border-color: var(--wave); transform: translateY(-2px); }
+  .tie-card.selected { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(232,160,32,0.25); }
+
+  .tie-img-wrap {
+    background: #f0f4f8;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .tie-img-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; padding: 8px; }
+  .tie-placeholder {
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #c8dde8, #a0c0d8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    color: var(--ocean);
+    font-weight: bold;
+  }
+  .tie-label {
+    padding: 0.75rem;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: var(--text);
+  }
+  .tie-check {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 1rem;
+    font-weight: bold;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .tie-card.selected .tie-check { display: flex; }
+
+  hr.divider { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 2rem 0; }
+
+  .submit-wrap { text-align: center; margin-top: 2rem; }
+  .submit-btn {
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    border-radius: 30px;
+    padding: 1rem 3rem;
+    font-size: 1.1rem;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .submit-btn:hover { background: #f0b040; transform: translateY(-2px); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .status-msg {
+    margin-top: 1rem;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    text-align: center;
+    display: none;
+  }
+  .status-msg.error { background: #fdecea; border: 1px solid #e57373; color: var(--error); display: block; }
+  .status-msg.sending { background: #e3f2fd; border: 1px solid #64b5f6; color: #1565c0; display: block; }
+
+  .thankyou { display: none; text-align: center; padding: 3rem 1rem; color: var(--white); }
+  .thankyou.show { display: block; }
+  .thankyou h2 { font-size: 2rem; color: var(--gold); margin-bottom: 1rem; }
+  .thankyou p { color: #aac8d8; max-width: 480px; margin: 0 auto; line-height: 1.7; }
+  .form-wrap.hidden { display: none; }
+
+  .progress-wrap { background: rgba(255,255,255,0.1); border-radius: 20px; height: 6px; margin-bottom: 2rem; overflow: hidden; }
+  .progress-fill { background: var(--gold); height: 100%; border-radius: 20px; transition: width 0.4s ease; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="badge">⚓</div>
+  <h1>2026 Crew 554 Sea Base — Tiebreaker</h1>
+  <p>Two ties to break — pick one winner in each section</p>
+</div>
+
+<div class="container">
+
+  <div class="progress-wrap">
+    <div class="progress-fill" id="progressBar" style="width:0%"></div>
+  </div>
+
+  <div class="form-wrap" id="formWrap">
+
+    <div class="voter-card">
+      <h2>🪪 Your Name</h2>
+      <input type="text" id="voterName" placeholder="First and Last Name (e.g. John Smith)" autocomplete="name" />
+    </div>
+
+    <!-- TIEBREAKER 1: Small Front Logo -->
+    <div class="section-block">
+      <div class="section-label">Tiebreaker 1</div>
+      <h2 class="section-title">Small Front Logo</h2>
+      <p class="section-desc">Logo 2 and Logo 11 tied. Pick your favorite for the small front placement.</p>
+      <div class="callout"><strong>How to vote:</strong> Click the logo you prefer. Click again to deselect.</div>
+      <div class="tie-grid" id="grid1">
+        <div class="tie-card" id="tb1-logo2" onclick="selectTie(1, 'Logo 2', this)">
+          <div class="tie-img-wrap">
+            <img src="Logo 2.png" alt="Logo 2" onerror="this.parentNode.innerHTML='<div class=\'tie-placeholder\'>2</div>'">
+          </div>
+          <div class="tie-label">Logo 2</div>
+          <div class="tie-check">✓</div>
+        </div>
+        <div class="tie-card" id="tb1-logo11" onclick="selectTie(1, 'Logo 11', this)">
+          <div class="tie-img-wrap">
+            <img src="Logo 11.png" alt="Logo 11" onerror="this.parentNode.innerHTML='<div class=\'tie-placeholder\'>11</div>'">
+          </div>
+          <div class="tie-label">Logo 11</div>
+          <div class="tie-check">✓</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- TIEBREAKER 2: Large Back Logo -->
+    <div class="section-block">
+      <div class="section-label">Tiebreaker 2</div>
+      <h2 class="section-title">Large Back Logo</h2>
+      <p class="section-desc">Logo 8 and Logo 12 tied. Pick your favorite for the large back placement.</p>
+      <div class="callout"><strong>How to vote:</strong> Click the logo you prefer. Click again to deselect.</div>
+      <div class="tie-grid" id="grid2">
+        <div class="tie-card" id="tb2-logo8" onclick="selectTie(2, 'Logo 8', this)">
+          <div class="tie-img-wrap">
+            <img src="Logo 8.png" alt="Logo 8" onerror="this.parentNode.innerHTML='<div class=\'tie-placeholder\'>8</div>'">
+          </div>
+          <div class="tie-label">Logo 8</div>
+          <div class="tie-check">✓</div>
+        </div>
+        <div class="tie-card" id="tb2-logo12" onclick="selectTie(2, 'Logo 12', this)">
+          <div class="tie-img-wrap">
+            <img src="Logo 12.png" alt="Logo 12" onerror="this.parentNode.innerHTML='<div class=\'tie-placeholder\'>12</div>'">
+          </div>
+          <div class="tie-label">Logo 12</div>
+          <div class="tie-check">✓</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="submit-wrap">
+      <button class="submit-btn" id="submitBtn" onclick="submitVote()">Cast My Tiebreaker Vote ⚓</button>
+      <div class="status-msg" id="statusMsg"></div>
+    </div>
+
+  </div>
+
+  <div class="thankyou" id="thankYou">
+    <div style="font-size:3rem;">⚓</div>
+    <h2>Vote Received!</h2>
+    <p>Thanks for breaking the tie! Fair winds and following seas, Scouts!</p>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// CONFIGURATION — same Google Script URL as main vote
+// ============================================================
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycby_j8kgV3sfQNmItEo6ldn_5SEXFnMmD9GI8TBvxXyLpQXJYzJMhsX9kFNL6DBLFyaTJw/exec';
+
+let tie1Choice = '';
+let tie2Choice = '';
+
+function selectTie(tieNum, choice, el) {
+  const grid = document.getElementById('grid' + tieNum);
+  const cards = grid.querySelectorAll('.tie-card');
+
+  if (el.classList.contains('selected')) {
+    el.classList.remove('selected');
+    if (tieNum === 1) tie1Choice = '';
+    else tie2Choice = '';
+  } else {
+    cards.forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    if (tieNum === 1) tie1Choice = choice;
+    else tie2Choice = choice;
+  }
+  updateProgress();
+}
+
+function updateProgress() {
+  let pts = 0;
+  if (document.getElementById('voterName').value.trim()) pts++;
+  if (tie1Choice) pts++;
+  if (tie2Choice) pts++;
+  document.getElementById('progressBar').style.width = Math.round((pts / 3) * 100) + '%';
+}
+
+document.getElementById('voterName').addEventListener('input', updateProgress);
+
+function submitVote() {
+  const name = document.getElementById('voterName').value.trim();
+  const msg = document.getElementById('statusMsg');
+  const btn = document.getElementById('submitBtn');
+
+  msg.className = 'status-msg';
+  msg.textContent = '';
+
+  if (!name) { showError('Please enter your name before submitting.'); return; }
+  if (!tie1Choice) { showError('Please pick a winner for Tiebreaker 1 — Small Front Logo.'); return; }
+  if (!tie2Choice) { showError('Please pick a winner for Tiebreaker 2 — Large Back Logo.'); return; }
+
+  const payload = {
+    type: 'tiebreaker',
+    timestamp: new Date().toISOString(),
+    name: name,
+    small_front_winner: tie1Choice,
+    large_back_winner: tie2Choice,
+  };
+
+  btn.disabled = true;
+  msg.className = 'status-msg sending';
+  msg.textContent = 'Sending your vote…';
+
+  if (SHEET_URL === 'YOUR_GOOGLE_SCRIPT_URL_HERE') {
+    setTimeout(() => { console.log('DEMO MODE:', payload); showThanks(); }, 1200);
+    return;
+  }
+
+  fetch(SHEET_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(() => showThanks())
+  .catch(() => {
+    btn.disabled = false;
+    showError('Could not send your vote. Check your connection and try again.');
+  });
+}
+
+function showError(text) {
+  const msg = document.getElementById('statusMsg');
+  msg.className = 'status-msg error';
+  msg.textContent = '⚠️ ' + text;
+  msg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function showThanks() {
+  document.getElementById('formWrap').classList.add('hidden');
+  document.getElementById('thankYou').classList.add('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
